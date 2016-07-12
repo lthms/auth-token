@@ -3,5 +3,6 @@ packages:
 - token/
 - token-aeson/
 - token-persistent/
+- token-random/
 extra-deps:
 resolver: nightly-2016-07-11
