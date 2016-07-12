@@ -2,5 +2,6 @@ flags: {}
 packages:
 - token/
 - token-aeson/
+- token-persistent/
 extra-deps:
 resolver: nightly-2016-07-11
