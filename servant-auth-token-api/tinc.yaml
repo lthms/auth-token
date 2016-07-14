@@ -1,0 +1,7 @@
+dependencies:
+  - name: auth-token
+    path: ../auth-token
+
+extra-deps:
+  - servant-0.8
+  - servant-server-0.8

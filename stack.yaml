@@ -4,5 +4,9 @@ packages:
 - token-aeson/
 - token-persistent/
 - token-random/
+- auth-token/
+- auth-token-persistent/
+- servant-auth-token-api/
+- servant-auth-token-server/
 extra-deps:
 resolver: nightly-2016-07-11

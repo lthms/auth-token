@@ -1,0 +1,18 @@
+Identity
+  registration   UTCTime
+  lastSeen       UTCTime
+
+Disabled
+  identity       IdentityId
+  until          UTCTime Maybe
+  UniqueId       identity
+
+AccessGrant
+  identity       IdentityId
+  access         AccessToken
+  accessExpire   UTCTime
+  refresh        RefreshToken
+  refreshExpire  UTCTime
+  UniqueAccess   access
+  UniqueRefresh  refresh
+  UniqueIdentity identity
