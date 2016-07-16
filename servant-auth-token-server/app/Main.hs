@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
 import Auth.Token
@@ -22,22 +23,35 @@ type AuthM = ReaderT ConnectionPool (ExceptT ServantErr IO)
 instance AuthentMonad Identity ConnectionPool AuthM where
     authenticator = ask
 
+type MyApi = AuthentApi Int
+        :<|> "new" :> PostCreated '[JSON] Identity
+
+newHandler :: AuthM Identity
+newHandler = do
+    auth <- authenticator
+    id <- liftIO $ newIdentity auth
+
+    return id
+
 authToExcept :: ConnectionPool
              -> AuthM
              :~> ExceptT ServantErr IO
 authToExcept pool = Nat $ \x -> runReaderT x pool
 
 authServe :: ConnectionPool
-          -> ServerT (AuthentApi a) AuthM
-          -> Server (AuthentApi a)
+          -> ServerT MyApi AuthM
+          -> Server MyApi
 authServe pool = enter $ authToExcept pool
 
-server :: ServerT (AuthentApi Int) AuthM
-server = mkAuthServer $ (\ _ -> throwError err401)
+server :: ServerT MyApi AuthM
+server = (mkAuthServer (\ _ -> throwError err401)) :<|> newHandler
+
+myApi :: Proxy MyApi
+myApi = Proxy
 
 authd :: ConnectionPool
       -> Application
-authd pool = logStdout $ serve authentApi (authServe pool server)
+authd pool = logStdout $ serve myApi (authServe pool server)
 
 main :: IO ()
 main = do pool <- runNoLoggingT $ createSqlitePool "db.sqlite" 10
