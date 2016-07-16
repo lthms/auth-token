@@ -33,23 +33,26 @@ newIdentityHandler = do
 
 mkPostTokenGetHandler :: (MonadIO m, MonadError ServantErr m, AuthentMonad id auth m)
                       => (a -> m id)
+                      -> (AuthError -> ServantErr)
                       -> a
                       -> m AccessGrant
-mkPostTokenGetHandler getId req = do
+mkPostTokenGetHandler getId authErrH req = do
     id <- getId req
     auth <- authenticator
 
     mRes <- liftIO $ getFreshTokens auth id
 
     case mRes of Right acc -> return acc
-                 Left _ -> throwError err403
+                 Left err -> throwError $ authErrH err
 
 postTokenRefreshHandler :: (MonadError ServantErr m, AuthentMonad id auth m)
-                        => PostTokenRefreshReq
+                        => (AuthError -> ServantErr)
+                        -> PostTokenRefreshReq
                         -> m AccessGrant
-postTokenRefreshHandler (PostTokenRefreshReq tok) = throwError err401
+postTokenRefreshHandler authErrH (PostTokenRefreshReq tok) = throwError err401
 
 mkAuthServer :: (MonadIO m, MonadError ServantErr m, AuthentMonad id auth m)
              => (a -> m id)
+             -> (AuthError -> ServantErr)
              -> ServerT (AuthentApi a) m
-mkAuthServer h = (mkPostTokenGetHandler h) :<|> postTokenRefreshHandler
+mkAuthServer h err = (mkPostTokenGetHandler h err) :<|> postTokenRefreshHandler err

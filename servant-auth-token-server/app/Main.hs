@@ -5,6 +5,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 
+import GHC.Int
 import Auth.Token
 import Auth.Token.Persistent
 import Control.Monad.Except
@@ -23,15 +24,15 @@ type AuthM = ReaderT ConnectionPool (ExceptT ServantErr IO)
 instance AuthentMonad Identity ConnectionPool AuthM where
     authenticator = ask
 
-type MyApi = AuthentApi Int
-        :<|> "new" :> PostCreated '[JSON] Identity
+type MyApi = AuthentApi Int64
+        :<|> "new" :> PostCreated '[JSON] Int64
 
-newHandler :: AuthM Identity
+newHandler :: AuthM Int64
 newHandler = do
     auth <- authenticator
     id <- liftIO $ newIdentity auth
 
-    return id
+    return $ fromSqlKey id
 
 authToExcept :: ConnectionPool
              -> AuthM
@@ -44,7 +45,15 @@ authServe :: ConnectionPool
 authServe pool = enter $ authToExcept pool
 
 server :: ServerT MyApi AuthM
-server = (mkAuthServer (\ _ -> throwError err401)) :<|> newHandler
+server = (mkAuthServer getIdentityHandler authentErrorHandler) :<|> newHandler
+
+getIdentityHandler :: Int64 -> AuthM Identity
+getIdentityHandler id = return $ toSqlKey id
+
+authentErrorHandler :: AuthError -> ServantErr
+authentErrorHandler DisabledErr = err403 { errBody = "This account has been disabled" }
+authentErrorHandler InvalidTokenErr = err403 { errBody = "Invalid token" }
+authentErrorHandler UnknownIdErr = err403 { errBody = "Unknown user" }
 
 myApi :: Proxy MyApi
 myApi = Proxy
