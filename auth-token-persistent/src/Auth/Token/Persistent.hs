@@ -52,6 +52,8 @@ instance Authenticator Identity ConnectionPool where
 
     disableUntil _ _ _ = return $ Right ()
 
+    newIdentity pool = runSqlPool (Bd.newIdentity) pool
+
     getIdentity pool tok = do
       mId <- runSqlPool (Bd.getIdentityByAccess tok) pool
 

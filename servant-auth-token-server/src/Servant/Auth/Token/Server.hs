@@ -10,18 +10,26 @@
 
 module Servant.Auth.Token.Server where
 
-import Control.Monad.Except
-import Auth.Token
-import Control.Monad (mzero)
-import Data.Aeson
-import Data.Token
-import Data.Token.Aeson
-import GHC.Generics
-import Servant
-import Servant.Auth.Token.Api
+import           Control.Monad.Except
+import           Auth.Token hiding (newIdentity)
+import qualified Auth.Token as A (newIdentity)
+import           Control.Monad (mzero)
+import           Data.Aeson
+import           Data.Token
+import           Data.Token.Aeson
+import           GHC.Generics
+import           Servant
+import           Servant.Auth.Token.Api
 
 class (Monad m, Authenticator id auth) => AuthentMonad id auth m | m -> auth where
     authenticator :: m auth
+
+newIdentityHandler :: (MonadIO m, MonadError ServantErr m, AuthentMonad id auth m)
+                   => m id
+newIdentityHandler = do
+    auth <- authenticator
+    id <- liftIO $ A.newIdentity auth
+    return id
 
 mkPostTokenGetHandler :: (MonadError ServantErr m, AuthentMonad id auth m)
                       => (a -> m id)

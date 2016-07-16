@@ -40,6 +40,7 @@ type AuthRes = Either AuthError
 
 class Authenticator id auth | auth -> id where
     initAuthenticator :: auth -> IO ()
+    newIdentity       :: auth -> IO id
     getFreshTokens    :: auth -> id -> IO (AuthRes AccessGrant)
     refreshTokens     :: auth -> Token "refresh" -> IO (AuthRes AccessGrant)
     removeTokens      :: auth -> Token "access" -> IO (AuthRes ())
