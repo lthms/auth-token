@@ -32,11 +32,8 @@ authServe :: ConnectionPool
           -> Server (AuthentApi a)
 authServe pool = enter $ authToExcept pool
 
-h :: Int -> AuthM AccessGrant
-h _ = throwError err401
-
 server :: ServerT (AuthentApi Int) AuthM
-server = mkAuthServer h
+server = mkAuthServer $ (\ _ -> throwError err401)
 
 authd :: ConnectionPool
       -> Application

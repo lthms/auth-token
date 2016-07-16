@@ -23,12 +23,18 @@ import Servant.Auth.Token.Api
 class (Monad m, Authenticator id auth) => AuthentMonad id auth m | m -> auth where
     authenticator :: m auth
 
+mkPostTokenGetHandler :: (MonadError ServantErr m, AuthentMonad id auth m)
+                      => (a -> m id)
+                      -> a
+                      -> m AccessGrant
+mkPostTokenGetHandler _ _ = throwError err401
+
 postTokenRefreshHandler :: (MonadError ServantErr m, AuthentMonad id auth m)
                         => PostTokenRefreshReq
                         -> m AccessGrant
 postTokenRefreshHandler (PostTokenRefreshReq tok) = throwError err401
 
 mkAuthServer :: (MonadError ServantErr m, AuthentMonad id auth m)
-             => (a -> m AccessGrant)
+             => (a -> m id)
              -> ServerT (AuthentApi a) m
-mkAuthServer h = h :<|> postTokenRefreshHandler
+mkAuthServer h = (mkPostTokenGetHandler h) :<|> postTokenRefreshHandler
