@@ -47,7 +47,7 @@ isDisabled id = do
 idExist :: (MonadBaseControl IO m, MonadIO m, Monad m)
         => IdentityId
         -> SqlPersistT m Bool
-idExist id = do maybeId <- getBy $ UniqueIdentity id
+idExist id = do maybeId <- get id
                 return $ isJust maybeId
 
 getIdentityByAccess :: (MonadBaseControl IO m, MonadIO m, Monad m)
