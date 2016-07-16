@@ -45,11 +45,16 @@ mkPostTokenGetHandler getId authErrH req = do
     case mRes of Right acc -> return acc
                  Left err -> throwError $ authErrH err
 
-postTokenRefreshHandler :: (MonadError ServantErr m, AuthentMonad id auth m)
+postTokenRefreshHandler :: (MonadIO m, MonadError ServantErr m, AuthentMonad id auth m)
                         => (AuthError -> ServantErr)
                         -> PostTokenRefreshReq
                         -> m AccessGrant
-postTokenRefreshHandler authErrH (PostTokenRefreshReq tok) = throwError err401
+postTokenRefreshHandler authErrH (PostTokenRefreshReq tok) = do
+    auth <- authenticator
+    mRes <- liftIO $ refreshTokens auth tok
+
+    case mRes of Right acc -> return acc
+                 Left err -> throwError $ authErrH err
 
 mkAuthServer :: (MonadIO m, MonadError ServantErr m, AuthentMonad id auth m)
              => (a -> m id)
