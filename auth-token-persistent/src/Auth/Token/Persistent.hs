@@ -24,7 +24,7 @@ instance Authenticator Identity ConnectionPool where
       exist <- runSqlPool (Bd.idExist id) pool
       dis   <- runSqlPool (Bd.isDisabled id) pool
 
-      if exist
+      if not exist
       then return $ Left UnknownIdErr
       else if dis
            then return $ Left DisabledErr
