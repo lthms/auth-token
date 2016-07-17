@@ -5,6 +5,7 @@ module Data.Token.Random
 
 import           Crypto.Random
 import           Crypto.Types
+import           Data.ByteString.Base64 as B64
 import           Data.Token
 
 genRandomToken :: ByteLength -> IO (Token level)
@@ -13,4 +14,4 @@ genRandomToken len = do
     let try = genBytes len g
 
     case try of Left _         -> fail "should not happen"
-                Right (str, _) -> return $ fromByteString str
+                Right (str, _) -> return . fromByteString . B64.encode $ str

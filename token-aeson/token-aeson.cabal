@@ -19,7 +19,6 @@ library
   build-depends:       base >= 4.7 && < 5
                      , token
                      , aeson
-                     , base64-bytestring
                      , text
   default-language:    Haskell2010
 
