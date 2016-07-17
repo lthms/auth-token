@@ -3,6 +3,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Servant.Auth.Token.Api where
 
@@ -17,6 +18,7 @@ import Data.Proxy
 
 type AuthentApi a = PostTokenGetRoute a
               :<|> PostTokenRefreshRoute
+
 authentApi :: Proxy (AuthentApi a)
 authentApi = Proxy
 

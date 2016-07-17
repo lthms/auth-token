@@ -1,20 +1,20 @@
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeSynonymInstances #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE TypeSynonymInstances  #-}
 
-import GHC.Int
 import Auth.Token
 import Auth.Token.Persistent
 import Control.Monad.Except
 import Control.Monad.Logger (runNoLoggingT)
 import Control.Monad.Reader
 import Database.Persist.Sqlite
+import GHC.Int
 import Network.Wai
-import Network.Wai.Middleware.RequestLogger
 import Network.Wai.Handler.Warp
+import Network.Wai.Middleware.RequestLogger
 import Servant
 import Servant.Auth.Token.Api
 import Servant.Auth.Token.Server
@@ -26,6 +26,10 @@ instance AuthentMonad ConnectionPool AuthM where
 
 type MyApi = AuthentApi Int64
         :<|> "new" :> PostCreated '[JSON] Int64
+        :<|> AuthProtect ConnectionPool :> "test" :> Get '[JSON] Int64
+
+testHandler :: Identity -> AuthM Int64
+testHandler id = return 1
 
 newHandler :: AuthM Int64
 newHandler = do
@@ -45,7 +49,9 @@ authServe :: ConnectionPool
 authServe pool = enter $ authToExcept pool
 
 server :: ServerT MyApi AuthM
-server = (mkAuthServer getIdentityHandler authentErrorHandler) :<|> newHandler
+server = (mkAuthServer getIdentityHandler authentErrorHandler)
+    :<|> newHandler
+    :<|> (\id -> testHandler id)
 
 getIdentityHandler :: Int64 -> AuthM Identity
 getIdentityHandler id = return $ toSqlKey id
@@ -60,7 +66,9 @@ myApi = Proxy
 
 authd :: ConnectionPool
       -> Application
-authd pool = logStdout $ serve myApi (authServe pool server)
+authd pool = logStdout $ serveWithContext myApi
+                                          (authTokenContext pool authentErrorHandler)
+                                          (authServe pool server)
 
 main :: IO ()
 main = do pool <- runNoLoggingT $ createSqlitePool "db.sqlite" 10
