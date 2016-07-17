@@ -1,34 +1,35 @@
 {-# LANGUAGE DataKinds              #-}
-{-# LANGUAGE DeriveGeneric          #-}
 {-# LANGUAGE DeriveDataTypeable     #-}
+{-# LANGUAGE DeriveGeneric          #-}
 {-# LANGUAGE FlexibleContexts       #-}
-{-# LANGUAGE KindSignatures         #-}
-{-# LANGUAGE TypeOperators          #-}
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses  #-}
-{-# LANGUAGE OverloadedStrings      #-}
-{-# LANGUAGE RankNTypes             #-}
-{-# LANGUAGE TypeFamilies           #-}
-{-# LANGUAGE TypeSynonymInstances   #-}
-{-# LANGUAGE StandaloneDeriving     #-}
 {-# LANGUAGE FlexibleInstances      #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE KindSignatures         #-}
+{-# LANGUAGE MultiParamTypeClasses  #-}
+{-# LANGUAGE OverloadedStrings      #-}
+{-# LANGUAGE RankNTypes             #-}
+{-# LANGUAGE StandaloneDeriving     #-}
+{-# LANGUAGE TypeFamilies           #-}
+{-# LANGUAGE TypeOperators          #-}
+{-# LANGUAGE TypeSynonymInstances   #-}
 
 module Servant.Auth.Token.Server where
 
+import           Auth.Token                       hiding (newIdentity)
+import qualified Auth.Token                       as A (newIdentity)
+import           Control.Monad                    (mzero)
 import           Control.Monad.Except
-import           Auth.Token hiding (newIdentity)
-import qualified Auth.Token as A (newIdentity)
-import           Control.Monad (mzero)
 import           Data.Aeson
+import           Data.ByteString
+import           Data.Text.Encoding               (encodeUtf8)
 import           Data.Token
 import           Data.Token.Aeson
 import           GHC.Generics
+import           Network.Wai
 import           Servant
 import           Servant.Auth.Token.Api
-import           Data.Text.Encoding (encodeUtf8)
-import           Network.Wai
-import           Servant.Server.Experimental.Auth (AuthServerData, AuthHandler, mkAuthHandler)
-import           Data.ByteString
+import           Servant.Server.Experimental.Auth (AuthHandler, AuthServerData,
+                                                   mkAuthHandler)
 
 type TokenProtect = AuthProtect "auth-token"
 

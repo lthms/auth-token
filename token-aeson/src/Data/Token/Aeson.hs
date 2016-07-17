@@ -1,10 +1,10 @@
 module Data.Token.Aeson where
 
+import           Control.Monad
 import           Data.Aeson
 import           Data.Aeson.Types
-import           Data.Token
 import           Data.Text.Encoding (decodeUtf8, encodeUtf8)
-import           Control.Monad
+import           Data.Token
 
 instance ToJSON (Token scope) where
     toJSON = String . decodeUtf8 . toByteString

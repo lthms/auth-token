@@ -1,20 +1,20 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE KindSignatures    #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE TypeOperators     #-}
 
 module Servant.Auth.Token.Api where
 
-import Auth.Token
-import Control.Monad (mzero)
-import Data.Aeson
-import Data.Token
-import Data.Token.Aeson
-import GHC.Generics
-import Servant.API
-import Data.Proxy
+import           Auth.Token
+import           Control.Monad    (mzero)
+import           Data.Aeson
+import           Data.Proxy
+import           Data.Token
+import           Data.Token.Aeson
+import           GHC.Generics
+import           Servant.API
 
 type AuthentApi a = PostTokenGetRoute a
               :<|> PostTokenRefreshRoute

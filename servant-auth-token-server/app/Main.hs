@@ -2,24 +2,24 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE TypeSynonymInstances  #-}
-{-# LANGUAGE TypeFamilies  #-}
 
-import Auth.Token
-import Auth.Token.Persistent
-import Control.Monad.Except
-import Control.Monad.Logger (runNoLoggingT)
-import Control.Monad.Reader
-import Database.Persist.Sqlite
-import GHC.Int
-import Network.Wai
-import Network.Wai.Handler.Warp
-import Network.Wai.Middleware.RequestLogger
-import Servant
-import Servant.Server.Experimental.Auth (AuthServerData)
-import Servant.Auth.Token.Api
-import Servant.Auth.Token.Server
+import           Auth.Token
+import           Auth.Token.Persistent
+import           Control.Monad.Except
+import           Control.Monad.Logger                 (runNoLoggingT)
+import           Control.Monad.Reader
+import           Database.Persist.Sqlite
+import           GHC.Int
+import           Network.Wai
+import           Network.Wai.Handler.Warp
+import           Network.Wai.Middleware.RequestLogger
+import           Servant
+import           Servant.Auth.Token.Api
+import           Servant.Auth.Token.Server
+import           Servant.Server.Experimental.Auth     (AuthServerData)
 
 type instance AuthServerData TokenProtect = Int64
 

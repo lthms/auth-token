@@ -15,9 +15,9 @@ module Data.Token
   , unsafeTokenCast
   ) where
 
-import           Data.ByteString    (ByteString)
+import           Data.ByteString (ByteString)
 import           Data.String
-import           GHC.TypeLits       (Symbol)
+import           GHC.TypeLits    (Symbol)
 
 -- | A 'Token' is 'ByteString' subtype with an explicit scope in the form
 -- of a string. This allows to define two ByteString variables which cannot

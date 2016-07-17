@@ -1,25 +1,25 @@
-{-# LANGUAGE TemplateHaskell            #-}
-{-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE MultiParamTypeClasses      #-}
-{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE TypeFamilies               #-}
 
 module Auth.Token.Persistent.Backend where
 
 import           Control.Monad
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Control
+import           Data.Maybe
 import           Data.Time
 import           Data.Token
-import           Data.Maybe
-import           Data.Token.Random
 import           Data.Token.Persistent
+import           Data.Token.Random
 import           Database.Persist
-import           Database.Persist.Sql
 import           Database.Persist.Quasi
+import           Database.Persist.Sql
 import           Database.Persist.TH
 
 type AccessToken = Token "access"
