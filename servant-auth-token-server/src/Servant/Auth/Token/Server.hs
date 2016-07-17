@@ -30,7 +30,7 @@ import           Network.Wai
 import           Servant.Server.Experimental.Auth (AuthServerData, AuthHandler, mkAuthHandler)
 import           Data.ByteString
 
-type instance AuthServerData (AuthProtect auth) = Id auth
+type TokenProtect = AuthProtect "auth-token"
 
 class (Monad m, Authenticator auth) => AuthentMonad auth m | m -> auth where
     authenticator :: m auth
@@ -69,23 +69,25 @@ postTokenRefreshHandler authErrH (PostTokenRefreshReq tok) = do
 
 authTokenHandler :: (Authenticator auth)
                  => auth
+                 -> (Id auth -> IO (AuthServerData TokenProtect))
                  -> (AuthError -> ServantErr)
-                 -> AuthHandler Request (Id auth)
-authTokenHandler auth errH =
+                 -> AuthHandler Request (AuthServerData TokenProtect)
+authTokenHandler auth getData errH =
     let handler req = case lookup "auth-token" (requestHeaders req) of
                           Nothing  -> throwError $ err401 { errBody = "Missing auth-token header" }
                           Just str -> let tok :: Token "access"
                                           tok = fromByteString str
                                       in do mId <- liftIO $ getIdentity auth tok
-                                            case mId of Right id -> return id
+                                            case mId of Right id -> do liftIO $ getData id
                                                         Left err -> throwError $ errH err
     in mkAuthHandler handler
 
 authTokenContext :: (Authenticator auth)
                  => auth
+                 -> (Id auth -> IO (AuthServerData TokenProtect))
                  -> (AuthError -> ServantErr)
-                 -> Context (AuthHandler Request (Id auth) ': '[])
-authTokenContext auth errH = authTokenHandler auth errH :. EmptyContext
+                 -> Context (AuthHandler Request (AuthServerData TokenProtect) ': '[])
+authTokenContext auth getData errH = authTokenHandler auth getData errH :. EmptyContext
 
 mkAuthServer :: (MonadIO m, MonadError ServantErr m, AuthentMonad auth m)
              => (a -> m (Id auth))

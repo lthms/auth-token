@@ -4,6 +4,7 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE TypeOperators         #-}
 {-# LANGUAGE TypeSynonymInstances  #-}
+{-# LANGUAGE TypeFamilies  #-}
 
 import Auth.Token
 import Auth.Token.Persistent
@@ -16,8 +17,11 @@ import Network.Wai
 import Network.Wai.Handler.Warp
 import Network.Wai.Middleware.RequestLogger
 import Servant
+import Servant.Server.Experimental.Auth (AuthServerData)
 import Servant.Auth.Token.Api
 import Servant.Auth.Token.Server
+
+type instance AuthServerData TokenProtect = Int64
 
 type AuthM = ReaderT ConnectionPool (ExceptT ServantErr IO)
 
@@ -26,10 +30,10 @@ instance AuthentMonad ConnectionPool AuthM where
 
 type MyApi = AuthentApi Int64
         :<|> "new" :> PostCreated '[JSON] Int64
-        :<|> AuthProtect ConnectionPool :> "test" :> Get '[JSON] Int64
+        :<|> TokenProtect :> "test" :> Get '[JSON] Int64
 
-testHandler :: Identity -> AuthM Int64
-testHandler id = return 1
+testHandler :: Int64 -> AuthM Int64
+testHandler = return
 
 newHandler :: AuthM Int64
 newHandler = do
@@ -67,7 +71,7 @@ myApi = Proxy
 authd :: ConnectionPool
       -> Application
 authd pool = logStdout $ serveWithContext myApi
-                                          (authTokenContext pool authentErrorHandler)
+                                          (authTokenContext pool (return . fromSqlKey) authentErrorHandler)
                                           (authServe pool server)
 
 main :: IO ()
