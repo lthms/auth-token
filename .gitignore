@@ -1,2 +1,4 @@
 .stack-work
 *.sqlite
+*.sqlite-shw
+*.sqlite-wal
