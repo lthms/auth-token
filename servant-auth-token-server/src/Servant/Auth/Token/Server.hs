@@ -21,22 +21,22 @@ import           GHC.Generics
 import           Servant
 import           Servant.Auth.Token.Api
 
-class (Monad m, Authenticator id auth) => AuthentMonad id auth m | m -> auth where
+class (Monad m, Authenticator auth) => AuthentMonad auth m | m -> auth where
     authenticator :: m auth
 
-newIdentityHandler :: (MonadIO m, MonadError ServantErr m, AuthentMonad id auth m)
-                   => m id
+newIdentityHandler :: (MonadIO m, MonadError ServantErr m, AuthentMonad auth m)
+                   => m (Id auth)
 newIdentityHandler = do
     auth <- authenticator
     id <- liftIO $ A.newIdentity auth
     return id
 
-mkPostTokenGetHandler :: (MonadIO m, MonadError ServantErr m, AuthentMonad id auth m)
-                      => (a -> m id)
-                      -> (AuthError -> ServantErr)
-                      -> a
-                      -> m AccessGrant
-mkPostTokenGetHandler getId authErrH req = do
+postTokenGetHandler :: (MonadIO m, MonadError ServantErr m, AuthentMonad auth m)
+                    => (a -> m (Id auth))
+                    -> (AuthError -> ServantErr)
+                    -> a
+                    -> m AccessGrant
+postTokenGetHandler getId authErrH req = do
     id <- getId req
     auth <- authenticator
 
@@ -45,7 +45,7 @@ mkPostTokenGetHandler getId authErrH req = do
     case mRes of Right acc -> return acc
                  Left err -> throwError $ authErrH err
 
-postTokenRefreshHandler :: (MonadIO m, MonadError ServantErr m, AuthentMonad id auth m)
+postTokenRefreshHandler :: (MonadIO m, MonadError ServantErr m, AuthentMonad auth m)
                         => (AuthError -> ServantErr)
                         -> PostTokenRefreshReq
                         -> m AccessGrant
@@ -56,8 +56,8 @@ postTokenRefreshHandler authErrH (PostTokenRefreshReq tok) = do
     case mRes of Right acc -> return acc
                  Left err -> throwError $ authErrH err
 
-mkAuthServer :: (MonadIO m, MonadError ServantErr m, AuthentMonad id auth m)
-             => (a -> m id)
+mkAuthServer :: (MonadIO m, MonadError ServantErr m, AuthentMonad auth m)
+             => (a -> m (Id auth))
              -> (AuthError -> ServantErr)
              -> ServerT (AuthentApi a) m
-mkAuthServer h err = (mkPostTokenGetHandler h err) :<|> postTokenRefreshHandler err
+mkAuthServer h err = (postTokenGetHandler h err) :<|> postTokenRefreshHandler err

@@ -1,6 +1,7 @@
 {-# LANGUAGE TypeSynonymInstances  #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
 
 module Auth.Token.Persistent where
 
@@ -19,7 +20,9 @@ bdAccessGrantToAccessGrant (Bd.AccessGrant _ acc accE ref refE) =
     AccessGrant (EphemeralToken accE acc)
                 (EphemeralToken refE ref)
 
-instance Authenticator Identity ConnectionPool where
+instance Authenticator ConnectionPool where
+    type Id ConnectionPool = Identity
+
     getFreshTokens pool id = do
       exist <- runSqlPool (Bd.idExist id) pool
       dis   <- runSqlPool (Bd.isDisabled id) pool

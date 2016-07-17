@@ -38,11 +38,12 @@ data AuthError =
 
 type AuthRes = Either AuthError
 
-class Authenticator id auth | auth -> id where
+class Authenticator auth where
+    type family Id auth :: *
     initAuthenticator :: auth -> IO ()
-    newIdentity       :: auth -> IO id
-    getFreshTokens    :: auth -> id -> IO (AuthRes AccessGrant)
+    newIdentity       :: auth -> IO (Id auth)
+    getFreshTokens    :: auth -> (Id auth) -> IO (AuthRes AccessGrant)
     refreshTokens     :: auth -> Token "refresh" -> IO (AuthRes AccessGrant)
     removeTokens      :: auth -> Token "access" -> IO (AuthRes ())
-    getIdentity       :: auth -> Token "access" -> IO (AuthRes id)
-    disableUntil      :: auth -> id -> Maybe UTCTime -> IO (AuthRes ())
+    getIdentity       :: auth -> Token "access" -> IO (AuthRes (Id auth))
+    disableUntil      :: auth -> (Id auth) -> Maybe UTCTime -> IO (AuthRes ())

@@ -21,7 +21,7 @@ import Servant.Auth.Token.Server
 
 type AuthM = ReaderT ConnectionPool (ExceptT ServantErr IO)
 
-instance AuthentMonad Identity ConnectionPool AuthM where
+instance AuthentMonad ConnectionPool AuthM where
     authenticator = ask
 
 type MyApi = AuthentApi Int64
