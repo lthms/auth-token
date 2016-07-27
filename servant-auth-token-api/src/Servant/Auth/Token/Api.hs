@@ -16,10 +16,13 @@ import           Data.Token.Aeson
 import           GHC.Generics
 import           Servant.API
 
-type AuthentApi a = PostTokenGetRoute a
+type AuthentApi a b = PostTokenGetRoute a
               :<|> PostTokenRefreshRoute
+              :<|> GetWhoAmIRoute b
 
-authentApi :: Proxy (AuthentApi a)
+type TokenProtect = AuthProtect "auth-token"
+
+authentApi :: Proxy (AuthentApi a b)
 authentApi = Proxy
 
 type PostTokenGetRoute a =
@@ -33,6 +36,11 @@ type PostTokenRefreshRoute =
     :> "refresh"
     :> ReqBody '[JSON] PostTokenRefreshReq
     :> PostCreated '[JSON] AccessGrant
+
+type GetWhoAmIRoute b =
+    TokenProtect
+    :> "whoami"
+    :> Get '[JSON] b
 
 data PostTokenRefreshReq = PostTokenRefreshReq { refreshToken :: Token "refresh" }
     deriving (Generic)

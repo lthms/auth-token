@@ -28,12 +28,11 @@ type AuthM = ReaderT ConnectionPool (ExceptT ServantErr IO)
 instance AuthentMonad ConnectionPool AuthM where
     authenticator = ask
 
-type MyApi = AuthentApi Int64
+type MyApi = AuthentApi Int64 Int64
         :<|> "new" :> PostCreated '[JSON] Int64
-        :<|> TokenProtect :> "test" :> Get '[JSON] Int64
 
-testHandler :: Int64 -> AuthM Int64
-testHandler = return
+whoamiHandler :: Int64 -> AuthM Int64
+whoamiHandler = return
 
 newHandler :: AuthM Int64
 newHandler = do
@@ -53,9 +52,8 @@ authServe :: ConnectionPool
 authServe pool = enter $ authToExcept pool
 
 server :: ServerT MyApi AuthM
-server = (mkAuthServer getIdentityHandler authentErrorHandler)
+server = (mkAuthServer getIdentityHandler whoamiHandler authentErrorHandler)
     :<|> newHandler
-    :<|> (\id -> testHandler id)
 
 getIdentityHandler :: Int64 -> AuthM Identity
 getIdentityHandler id = return $ toSqlKey id

@@ -31,8 +31,6 @@ import           Servant.Auth.Token.Api
 import           Servant.Server.Experimental.Auth (AuthHandler, AuthServerData,
                                                    mkAuthHandler)
 
-type TokenProtect = AuthProtect "auth-token"
-
 class (Monad m, Authenticator auth) => AuthentMonad auth m | m -> auth where
     authenticator :: m auth
 
@@ -92,6 +90,7 @@ authTokenContext auth getData errH = authTokenHandler auth getData errH :. Empty
 
 mkAuthServer :: (MonadIO m, MonadError ServantErr m, AuthentMonad auth m)
              => (a -> m (Id auth))
+             -> (AuthServerData TokenProtect -> m b)
              -> (AuthError -> ServantErr)
-             -> ServerT (AuthentApi a) m
-mkAuthServer h err = (postTokenGetHandler h err) :<|> postTokenRefreshHandler err
+             -> ServerT (AuthentApi a b) m
+mkAuthServer h whoami err = (postTokenGetHandler h err) :<|> postTokenRefreshHandler err :<|> whoami
