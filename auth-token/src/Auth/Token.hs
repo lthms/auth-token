@@ -22,10 +22,17 @@ module Auth.Token
 
 import           Data.Time
 import           Data.Token
+import           Data.Token.Aeson
 import           GHC.Generics
+import           Data.Aeson
 
-data EphemeralToken level = EphemeralToken UTCTime (Token level)
+data EphemeralToken level = EphemeralToken { expire :: UTCTime
+                                           , value :: (Token level)
+                                           }
   deriving (Generic)
+
+instance FromJSON (EphemeralToken level)
+instance ToJSON (EphemeralToken level)
 
 hasExpired :: EphemeralToken level -> IO Bool
 hasExpired (EphemeralToken exp _) = do now <- getCurrentTime
@@ -39,8 +46,13 @@ data Refresh = Refresh
 type AccessToken = Token Access
 type RefreshToken = Token Refresh
 
-data AccessGrant = AccessGrant (EphemeralToken Access) (EphemeralToken Refresh)
+data AccessGrant = AccessGrant { access :: (EphemeralToken Access)
+                               , refresh :: (EphemeralToken Refresh)
+                               }
   deriving (Generic)
+
+instance FromJSON AccessGrant
+instance ToJSON AccessGrant
 
 tokenValue :: EphemeralToken level -> Token level
 tokenValue (EphemeralToken _ tok) = tok

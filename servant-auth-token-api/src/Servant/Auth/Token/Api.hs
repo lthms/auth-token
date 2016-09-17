@@ -54,23 +54,3 @@ data PostTokenRefreshReq = PostTokenRefreshReq { refreshToken :: RefreshToken }
 
 instance FromJSON PostTokenRefreshReq
 instance ToJSON PostTokenRefreshReq
-
-instance ToJSON (EphemeralToken level) where
-    toJSON (EphemeralToken time tok) =
-      object [ "value"  .= tok
-             , "expire" .= time ]
-
-instance FromJSON (EphemeralToken level) where
-    parseJSON (Object v) = EphemeralToken <$> v .: "time"
-                                          <*> v .: "value"
-    parseJSON _ = mzero
-
-instance ToJSON AccessGrant where
-    toJSON (AccessGrant acc ref) =
-      object [ "access"  .= acc
-             , "refresh" .= ref ]
-
-instance FromJSON AccessGrant where
-    parseJSON (Object v) = AccessGrant <$> v .: "access"
-                                       <*> v .: "refresh"
-    parseJSON _ = mzero
