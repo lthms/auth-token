@@ -42,7 +42,7 @@ type GetWhoAmIRoute b =
     :> "whoami"
     :> Get '[JSON] b
 
-data PostTokenRefreshReq = PostTokenRefreshReq { refreshToken :: Token "refresh" }
+data PostTokenRefreshReq = PostTokenRefreshReq { refreshToken :: RefreshToken }
     deriving (Generic)
 
 instance FromJSON PostTokenRefreshReq

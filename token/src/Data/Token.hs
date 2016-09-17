@@ -17,7 +17,6 @@ module Data.Token
 
 import           Data.ByteString (ByteString)
 import           Data.String
-import           GHC.TypeLits    (Symbol)
 
 -- | A 'Token' is 'ByteString' subtype with an explicit scope in the form
 -- of a string. This allows to define two ByteString variables which cannot
@@ -30,7 +29,7 @@ import           GHC.TypeLits    (Symbol)
 -- >  public = "public message for everyone"
 -- >
 -- >  public == private -- type system error
-newtype Token (scope :: Symbol) = Token { unToken :: ByteString }
+newtype Token scope = Token { unToken :: ByteString }
   deriving (IsString, Eq, Show)
 
 -- | Create a new token from a 'ByteString'.

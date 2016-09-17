@@ -74,7 +74,7 @@ authTokenHandler :: (Authenticator auth)
 authTokenHandler auth getData errH =
     let handler req = case lookup "auth-token" (requestHeaders req) of
                           Nothing  -> throwError $ err401 { errBody = "Missing auth-token header" }
-                          Just str -> let tok :: Token "access"
+                          Just str -> let tok :: AccessToken
                                           tok = fromByteString str
                                       in do mId <- liftIO $ getIdentity auth tok
                                             case mId of Right id -> do liftIO $ getData id

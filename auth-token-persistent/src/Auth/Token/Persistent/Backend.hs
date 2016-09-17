@@ -9,6 +9,7 @@
 
 module Auth.Token.Persistent.Backend where
 
+import           Auth.Token                   (AccessToken, RefreshToken)
 import           Control.Monad
 import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Control
@@ -21,9 +22,6 @@ import           Database.Persist
 import           Database.Persist.Quasi
 import           Database.Persist.Sql
 import           Database.Persist.TH
-
-type AccessToken = Token "access"
-type RefreshToken = Token "refresh"
 
 share [mkPersist sqlSettings, mkMigrate "migrateAuth"]
   $(persistFileWith lowerCaseSettings "model.persistent")
