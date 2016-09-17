@@ -93,4 +93,4 @@ mkAuthServer :: (MonadIO m, MonadError ServantErr m, AuthentMonad auth m)
              -> (AuthServerData TokenProtect -> m b)
              -> (AuthError -> ServantErr)
              -> ServerT (AuthentApi a b) m
-mkAuthServer h whoami err = (postTokenGetHandler h err) :<|> postTokenRefreshHandler err :<|> whoami
+mkAuthServer h whoami err = ((postTokenGetHandler h err) :<|> postTokenRefreshHandler err) :<|> whoami
