@@ -4,6 +4,7 @@
 {-# LANGUAGE KindSignatures         #-}
 {-# LANGUAGE MultiParamTypeClasses  #-}
 {-# LANGUAGE TypeFamilies           #-}
+{-# LANGUAGE DeriveGeneric          #-}
 
 module Auth.Token
   ( EphemeralToken (..)
@@ -21,20 +22,25 @@ module Auth.Token
 
 import           Data.Time
 import           Data.Token
+import           GHC.Generics
 
 data EphemeralToken level = EphemeralToken UTCTime (Token level)
+  deriving (Generic)
 
 hasExpired :: EphemeralToken level -> IO Bool
 hasExpired (EphemeralToken exp _) = do now <- getCurrentTime
                                        return (now <= exp)
 
-data Access
-data Refresh
+data Access = Access
+  deriving (Generic)
+data Refresh = Refresh
+  deriving (Generic)
 
 type AccessToken = Token Access
 type RefreshToken = Token Refresh
 
 data AccessGrant = AccessGrant (EphemeralToken Access) (EphemeralToken Refresh)
+  deriving (Generic)
 
 tokenValue :: EphemeralToken level -> Token level
 tokenValue (EphemeralToken _ tok) = tok

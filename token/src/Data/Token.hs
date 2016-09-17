@@ -2,6 +2,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE KindSignatures             #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE DeriveGeneric              #-}
 
 module Data.Token
   ( -- * Type
@@ -17,6 +18,7 @@ module Data.Token
 
 import           Data.ByteString (ByteString)
 import           Data.String
+import           GHC.Generics
 
 -- | A 'Token' is 'ByteString' subtype with an explicit scope in the form
 -- of a string. This allows to define two ByteString variables which cannot
@@ -30,7 +32,7 @@ import           Data.String
 -- >
 -- >  public == private -- type system error
 newtype Token scope = Token { unToken :: ByteString }
-  deriving (IsString, Eq, Show)
+  deriving (IsString, Eq, Show, Generic)
 
 -- | Create a new token from a 'ByteString'.
 fromByteString :: ByteString
