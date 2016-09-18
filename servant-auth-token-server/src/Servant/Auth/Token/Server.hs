@@ -21,7 +21,7 @@ import           Control.Monad                    (mzero)
 import           Control.Monad.Except
 import           Data.Aeson
 import           Data.ByteString
-import           Data.Text.Encoding               (encodeUtf8)
+import           Data.Text.Encoding               (decodeUtf8)
 import           Data.Token
 import           Data.Token.Aeson
 import           GHC.Generics
@@ -75,7 +75,7 @@ authTokenHandler auth getData errH =
     let handler req = case lookup "auth-token" (requestHeaders req) of
                           Nothing  -> throwError $ err401 { errBody = "Missing auth-token header" }
                           Just str -> let tok :: AccessToken
-                                          tok = fromByteString str
+                                          tok = fromText . decodeUtf8 $ str
                                       in do mId <- liftIO $ getIdentity auth tok
                                             case mId of Right id -> do liftIO $ getData id
                                                         Left err -> throwError $ errH err

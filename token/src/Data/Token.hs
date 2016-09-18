@@ -9,16 +9,16 @@ module Data.Token
     Token
 
   -- * Token Creation
-  , toByteString
-  , fromByteString
+  , toText
+  , fromText
 
     -- * Unsafe
   , unsafeTokenCast
   ) where
 
-import           Data.ByteString (ByteString)
-import           Data.String
-import           GHC.Generics
+import           Data.String (IsString)
+import           Data.Text (Text)
+import           GHC.Generics (Generic)
 
 -- | A 'Token' is 'ByteString' subtype with an explicit scope in the form
 -- of a string. This allows to define two ByteString variables which cannot
@@ -31,18 +31,18 @@ import           GHC.Generics
 -- >  public = "public message for everyone"
 -- >
 -- >  public == private -- type system error
-newtype Token scope = Token { unToken :: ByteString }
+newtype Token scope = Token { unToken :: Text }
   deriving (IsString, Eq, Show, Generic)
 
 -- | Create a new token from a 'ByteString'.
-fromByteString :: ByteString
-               -> Token scope
-fromByteString = Token
+fromText :: Text
+         -> Token scope
+fromText = Token
 
 -- | Retreive the underlying 'ByteString' of a given token.
-toByteString :: Token scope
-             -> ByteString
-toByteString = unToken
+toText :: Token scope
+       -> Text
+toText = unToken
 
 
 -- | __This should not be used unless you know what to do.__

@@ -20,6 +20,7 @@ library
                      , token
                      , base64-bytestring
                      , crypto-api
+                     , text
   default-language:    Haskell2010
 
 test-suite token-random-test

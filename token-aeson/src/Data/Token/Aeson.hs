@@ -7,8 +7,8 @@ import           Data.Text.Encoding (decodeUtf8, encodeUtf8)
 import           Data.Token
 
 instance ToJSON (Token scope) where
-    toJSON = String . decodeUtf8 . toByteString
+    toJSON = String . toText
 
 instance FromJSON (Token scope) where
-    parseJSON (String val) = return . fromByteString . encodeUtf8 $ val
+    parseJSON (String val) = return . fromText $ val
     parseJSON _ = mzero

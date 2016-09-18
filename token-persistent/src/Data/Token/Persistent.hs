@@ -2,16 +2,16 @@
 
 module Data.Token.Persistent where
 
-import           Data.Token
+import           Data.Token (Token, fromText, toText)
 import           Database.Persist.Class
 import           Database.Persist.Sql
-import           Database.Persist.Types
+import           Database.Persist.Types (SqlType(..))
 
 instance PersistField (Token level) where
-  toPersistValue = PersistByteString . toByteString
+  toPersistValue = PersistText . toText
 
-  fromPersistValue (PersistByteString bs) = Right $ fromByteString bs
-  fromPersistValue _                      = Left "Token must be converted from ByteString"
+  fromPersistValue (PersistText bs) = Right $ fromText bs
+  fromPersistValue _                = Left "Token must be converted from Text"
 
 instance PersistFieldSql (Token level) where
-  sqlType _ = SqlBlob
+  sqlType _ = SqlString
